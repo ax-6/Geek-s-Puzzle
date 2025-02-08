@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "Windows",
+            "includePath": [
+                "${workspaceFolder}/",
+                "${workspaceFolder}/third-party/wxWidgets-3.2.6/include"
+            ],
+            "defines": [],
+            "compilerPath": "F:\\mingw64\\bin\\gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}
