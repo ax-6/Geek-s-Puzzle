@@ -3,8 +3,7 @@
         {
             "name": "Windows",
             "includePath": [
-                "${workspaceFolder}/",
-                "${workspaceFolder}/third-party/wxWidgets-3.2.6/include"
+                "F:/wxWidgets-3.2.6/include"
             ],
             "defines": [],
             "compilerPath": "F:\\mingw64\\bin\\gcc.exe",

@@ -3,9 +3,3 @@
 // the root directory.
 
 #include "main.h"
-
-int main() {
-  GeekSPuzzle::Main main;
-  main.Run();
-  return 0;
-}
