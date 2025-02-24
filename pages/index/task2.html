@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Geek</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0a0e17;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      opacity: 0.5;
+    }
+    .lock-container {
+      position: relative;
+      z-index: 1;
+      width: 400px;
+      height: 200px;
+      background: rgba(27, 38, 59, 0.3);
+      border: 2px solid #00ffcc;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #00ffcc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .display {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .digit {
+      width: 60px;
+      height: 60px;
+      background: #1b263b;
+      border-radius: 5px;
+      text-align: center;
+      line-height: 60px;
+      font-size: 24px;
+      color: #00ffcc;
+      text-shadow: 0 0 10px #00ffcc;
+      font-family: monospace;
+    }
+    .digit.active {
+      background: #ff00ff;
+      color: #ffffff;
+      box-shadow: 0 0 15px #ff00ff;
+    }
+    .hint {
+      position: absolute;
+      font-size: 36px;
+      color: #ff00ff;
+      text-shadow: 0 0 10px #ff00ff;
+      opacity: 0;
+      animation: flicker 3s infinite;
+    }
+    @keyframes flicker {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+  <div class="lock-container">
+    <div class="display" id="display">
+      <div class="digit active"></div>
+      <div class="digit"></div>
+      <div class="digit"></div>
+      <div class="digit"></div>
+    </div>
+  </div>
+
+  <script>
+    // Canvas背景动画
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    for (let i = 0; i < 150; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 3 + 1,
+        speedX: Math.random() * 0.3 - 0.15,
+        speedY: Math.random() * 0.3 - 0.15,
+        char: String.fromCharCode(Math.floor(Math.random() * 94) + 33)
+      });
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#00ffcc';
+      ctx.font = '12px monospace';
+      particles.forEach(p => {
+        ctx.fillText(p.char, p.x, p.y);
+        p.x += p.speedX;
+        p.y += p.speedY;
+        if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // 解码逻辑
+    const digits = document.querySelectorAll('.digit');
+    let currentInput = []; // 存储完整的4个ASCII值
+    let tempInput = ''; // 临时存储当前输入的数字
+    const correctSequence = [71, 101, 101, 107]; // ASCII for "Geek"
+
+    document.onkeydown = function(e) {
+      if (e.key >= '0' && e.key <= '9') {
+        tempInput += e.key;
+        updateDisplay();
+      } else if (e.key === 'Enter' && tempInput !== '') {
+        const num = parseInt(tempInput);
+        if (num >= 0 && num <= 255) { // ASCII范围限制
+          currentInput.push(num);
+          tempInput = '';
+          updateDisplay();
+          if (currentInput.length === 4) {
+            checkSequence();
+          }
+        }
+      } else if (e.key === 'Backspace') {
+        if (tempInput.length > 0) {
+          tempInput = tempInput.slice(0, -1);
+        } else if (currentInput.length > 0) {
+          currentInput.pop();
+        }
+        updateDisplay();
+      }
+    };
+
+    function updateDisplay() {
+      digits.forEach((digit, i) => {
+        if (i < currentInput.length) {
+          digit.textContent = currentInput[i];
+          digit.classList.remove('active');
+        } else if (i === currentInput.length) {
+          digit.textContent = tempInput;
+          digit.classList.add('active');
+        } else {
+          digit.textContent = '';
+          digit.classList.remove('active');
+        }
+      });
+    }
+
+    function checkSequence() {
+      const inputStr = currentInput.join(',');
+      const correctStr = correctSequence.join(',');
+      if (inputStr === correctStr) {
+        digits.forEach(digit => digit.style.background = '#00ff00');
+        setTimeout(() => window.location.href = 'task3.html', 1000);
+      } else {
+        digits.forEach(digit => digit.style.background = '#ff0000');
+        setTimeout(() => {
+          currentInput = [];
+          tempInput = '';
+          updateDisplay();
+          digits.forEach(digit => digit.style.background = '#1b263b');
+        }, 500);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "geek-s-puzzle",
+  "version": "1.0.0",
+  "description": "An interesting puzzle. Only geeks can unravel it.",
+  "main": "main.js",
+  "scripts": {
+    "start": "nodemon --exec electron ."
+  },
+  "author": "Xie Zicong",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "electron": "^34.2.0",
+    "nodemon": "^3.1.9"
+  }
+}

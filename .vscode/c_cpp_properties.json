@@ -3,8 +3,8 @@
         {
             "name": "Windows",
             "includePath": [
-                "${workspaceFolder}/",
-                "${workspaceFolder}/third-party/wxWidgets-3.2.6/include"
+                "F:/Geek-s-Puzzle/third-party/cef/**",
+                "F:/Geek-s-Puzzle"
             ],
             "defines": [],
             "compilerPath": "F:\\mingw64\\bin\\gcc.exe",
