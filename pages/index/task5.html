@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geek's Puzzle</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e1e2f, #2a2a4a);
+        }
+
+        .game-container {
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        #target-sequence {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .target-item {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f0;
+            color: #fff;
+            font-size: 24px;
+            border-radius: 5px;
+        }
+
+        .queue {
+            display: flex;
+            gap: 10px;
+            min-height: 50px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .queue-item {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #666;
+            color: #fff;
+            font-size: 24px;
+            border-radius: 5px;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .queue-item.enqueue {
+            animation: slide-in 0.5s ease;
+        }
+
+        .queue-item.dequeue {
+            animation: slide-out 0.5s ease;
+        }
+
+        @keyframes slide-in {
+            from {
+                transform: translateX(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slide-out {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+        }
+
+        .success .queue-item {
+            background: #00ff00;
+            animation: blink 0.3s infinite alternate;
+        }
+
+        .error .queue-item {
+            background: #ff0000;
+            animation: shake 0.2s ease;
+        }
+
+        @keyframes blink {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn {
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            border: none;
+            border-radius: 5px;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+        }
+    </style>
+    <!-- script -->
+</head>
+
+<body>
+    <div class="game-container">
+        <div id="target-sequence">
+            <div class="target-item">2</div>
+            <div class="target-item">3</div>
+            <div class="target-item">4</div>
+        </div>
+        <div class="queue" id="queue"></div>
+        <div class="buttons">
+            <button class="btn enqueue-btn" id="enqueue-btn"
+                style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxwYXRoIGQ9Ik0xMCAyNSBMNDAgMjUgTTI1IDEwIE0yNSAzNSIgIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+Cjwvc3ZnPg==');"></button>
+            <button class="btn dequeue-btn" id="dequeue-btn"
+                style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxwYXRoIGQ9Ik0xMCAyNSBMNDAgMjUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+Cjwvc3ZnPg==');"></button>
+        </div>
+    </div>
+
+    <script>
+        const queueContainer = document.getElementById('queue');
+        const enqueueBtn = document.getElementById('enqueue-btn');
+        const dequeueBtn = document.getElementById('dequeue-btn');
+        const targetSequence = ['2', '3', '4'];
+        let queue = [];
+        const elementsToEnqueue = ['1', '2', '3', '4'];
+        let enqueueIndex = 0;
+
+        enqueueBtn.addEventListener('click', () => {
+            if (enqueueIndex < elementsToEnqueue.length) {
+                const element = elementsToEnqueue[enqueueIndex++];
+                queue.push(element);
+                renderQueue('enqueue');
+                checkSolution();
+            }
+        });
+
+        dequeueBtn.addEventListener('click', () => {
+            if (queue.length > 0) {
+                queue.shift();
+                renderQueue('dequeue');
+                checkSolution();
+            }
+        });
+
+        function renderQueue(action) {
+            queueContainer.innerHTML = '';
+            queue.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `queue-item ${action}`;
+                div.textContent = item;
+                queueContainer.appendChild(div);
+            });
+        }
+
+        function checkSolution() {
+            if (queue.length > 5) {
+                queueContainer.classList.add('error');
+                setTimeout(() => {
+                    queueContainer.classList.remove('error');
+                    queue = [];
+                    enqueueIndex = 0;
+                    renderQueue();
+                }, 1000);
+            } else if (queue.length === targetSequence.length && queue.join('') === targetSequence.join('')) {
+                queueContainer.classList.add('success');
+                playSound(440, 200);
+                setTimeout(() => {
+                    window.location.href = 'task6.html'; // 下一关
+                }, 2000);
+            }
+        }
+
+        function playSound(frequency, duration) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.value = frequency;
+            oscillator.connect(audioContext.destination);
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), duration);
+        }
+
+        renderQueue();
+    </script>
+</body>
+
+</html>

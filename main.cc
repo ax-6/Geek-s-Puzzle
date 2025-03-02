@@ -3,6 +3,7 @@
 // the root directory.
 
 #include "main.h"
+<<<<<<< HEAD
 
 #include <Windows.h>
 
@@ -117,3 +118,5 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int) {
 
     return 0;
 }
+=======
+>>>>>>> ea1d75d7cbe924bc8ae695f8d29c3ce3f53465f6

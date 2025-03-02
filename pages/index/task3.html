@@ -1,226 +1,309 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>Task 8</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geek's Puzzle</title>
   <style>
+    /* 整体布局样式 */
     body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
       margin: 0;
-      background: #0a0e17;
-      overflow: hidden;
+      background-color: #f0f0f0;
+    }
+
+    /* 目标容器和当前容器样式 */
+    .target-container,
+    .current-container {
       display: flex;
       justify-content: center;
-      align-items: center;
-      height: 100vh;
+      margin: 20px;
     }
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 0;
-      opacity: 0.7;
-    }
-    .maze-container {
-      position: relative;
-      z-index: 1;
-      width: 600px;
-      height: 400px;
-      background: rgba(27, 38, 59, 0.3);
-      border: 2px solid #00ffcc;
-      border-radius: 10px;
-      box-shadow: 0 0 20px #00ffcc;
-    }
-    .path {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-    .path::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400"><path d="M50 200 H100 M150 150 H200 M150 250 H200 M250 100 H300 M250 300 H300 M350 150 H400 M350 250 H400 M450 100 H500 M450 300 H500 M550 150 H600 M550 250 H600" stroke="%2300ffcc" stroke-width="4" fill="none" filter="drop-shadow(0 0 5px %2300ffcc)"/></svg>');
-    }
-    .node {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      font-size: 24px;
-      color: #ff00ff;
-      text-align: center;
-      line-height: 40px;
-      text-shadow: 0 0 10px #ff00ff;
-      font-family: monospace;
-    }
+
+    /* 小球样式 */
     .ball {
-      position: absolute;
-      width: 15px;
-      height: 15px;
-      background: radial-gradient(#ff00ff, #00ffcc);
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      box-shadow: 0 0 15px #ff00ff;
-      z-index: 2;
+      background-color: #4CAF50;
+      margin: 5px;
     }
-    .hint {
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 48px;
-      color: #ff00ff;
-      text-shadow: 0 0 10px #ff00ff;
+
+    /* 开关区域样式 */
+    .switches {
+      display: flex;
+      justify-content: center;
+      margin: 20px;
+    }
+
+    .switch-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 10px;
+    }
+
+    /* 灯泡样式 */
+    .lamp {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #ccc;
+      margin-bottom: 10px;
+      transition: background-color 0.3s;
+    }
+
+    /* 开关样式 */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .switch input {
       opacity: 0;
-      animation: flicker 3s infinite;
+      width: 0;
+      height: 0;
     }
-    @keyframes flicker {
-      0%, 100% { opacity: 0; }
-      50% { opacity: 1; }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background-color: #2196F3;
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(26px);
+    }
+
+    /* 权重指示样式 */
+    .weight {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    /* 检查按钮样式 */
+    #check-btn {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    /* 成功动画 */
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .success-btn {
+      background-color: #4CAF50;
+      animation: pulse 0.5s infinite;
+    }
+
+    /* 错误动画 */
+    @keyframes shake {
+      0% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-5px);
+      }
+
+      50% {
+        transform: translateX(5px);
+      }
+
+      75% {
+        transform: translateX(-5px);
+      }
+
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+    .error-btn {
+      background-color: #f44336;
+      animation: shake 0.5s;
     }
   </style>
+  <!-- script -->
 </head>
+
 <body>
-  <canvas id="bg"></canvas>
-  <div class="maze-container">
-    <div class="path"></div>
-    <div class="hint">*</div>
-    <!-- 节点 -->
-    <div class="node" style="left: 50px; top: 180px;"></div>
-    <div class="node" style="left: 150px; top: 130px;">1</div>
-    <div class="node" style="left: 150px; top: 230px;">0</div>
-    <div class="node" style="left: 250px; top: 80px;">0</div>
-    <div class="node" style="left: 250px; top: 280px;">1</div>
-    <div class="node" style="left: 350px; top: 130px;">1</div>
-    <div class="node" style="left: 350px; top: 230px;">0</div>
-    <div class="node" style="left: 450px; top: 80px;">0</div>
-    <div class="node" style="left: 450px; top: 280px;">1</div>
-    <div class="node" style="left: 550px; top: 130px;">1</div>
-    <div class="node" style="left: 550px; top: 230px;">0</div>
-    <div class="ball" id="ball" style="left: 50px; top: 200px;"></div>
+  <!-- 目标容器：显示5个小球 -->
+  <div class="target-container">
+    <span class="ball"></span>
+    <span class="ball"></span>
+    <span class="ball"></span>
+    <span class="ball"></span>
+    <span class="ball"></span>
   </div>
 
+  <!-- 开关和灯泡区域 -->
+  <div class="switches">
+    <!-- 2^3位，权重8 -->
+    <div class="switch-group">
+      <div class="lamp"></div>
+      <label class="switch">
+        <input type="checkbox" class="switch-input">
+        <span class="slider"></span>
+      </label>
+      <div class="weight">
+        <span class="ball"></span>
+        <span class="ball"></span>
+        <span class="ball"></span>
+        <span class="ball"></span>
+        <span class="ball"></span>
+        <span class="ball"></span>
+        <span class="ball"></span>
+        <span class="ball"></span>
+      </div>
+    </div>
+    <!-- 2^2位，权重4 -->
+    <div class="switch-group">
+      <div class="lamp"></div>
+      <label class="switch">
+        <input type="checkbox" class="switch-input">
+        <span class="slider"></span>
+      </label>
+      <div class="weight">
+        <span class="ball"></span>
+        <span class="ball"></span>
+        <span class="ball"></span>
+        <span class="ball"></span>
+      </div>
+    </div>
+    <!-- 2^1位，权重2 -->
+    <div class="switch-group">
+      <div class="lamp"></div>
+      <label class="switch">
+        <input type="checkbox" class="switch-input">
+        <span class="slider"></span>
+      </label>
+      <div class="weight">
+        <span class="ball"></span>
+        <span class="ball"></span>
+      </div>
+    </div>
+    <!-- 2^0位，权重1 -->
+    <div class="switch-group">
+      <div class="lamp"></div>
+      <label class="switch">
+        <input type="checkbox" class="switch-input">
+        <span class="slider"></span>
+      </label>
+      <div class="weight">
+        <span class="ball"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 当前容器：显示开关状态对应的小球数量 -->
+  <div class="current-container"></div>
+
+  <!-- 检查按钮 -->
+  <button id="check-btn"></button>
+
   <script>
-    // Canvas背景动画
-    const canvas = document.getElementById('bg');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    // 获取 DOM 元素
+    const switches = document.querySelectorAll('.switch-input');
+    const lamps = document.querySelectorAll('.lamp');
+    const currentContainer = document.querySelector('.current-container');
+    const checkBtn = document.getElementById('check-btn');
+    const targetValue = 5; // 目标值为5
 
-    const particles = [];
-    for (let i = 0; i < 100; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: Math.random() * 3 + 1,
-        speedX: Math.random() * 0.3 - 0.15,
-        speedY: Math.random() * 0.3 - 0.15
+    // 更新灯泡状态
+    function updateLamps() {
+      switches.forEach((switchInput, index) => {
+        lamps[index].style.backgroundColor = switchInput.checked ? 'yellow' : '#ccc';
       });
     }
 
-    function animateParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = 'rgba(0, 255, 204, 0.2)';
-      particles.forEach((p, i) => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = '#00ffcc';
-        ctx.fill();
-        p.x += p.speedX;
-        p.y += p.speedY;
-        if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
-
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 100) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-          }
+    // 更新当前容器的小球数量
+    function updateCurrentContainer() {
+      let value = 0;
+      switches.forEach((switchInput, index) => {
+        if (switchInput.checked) {
+          value += Math.pow(2, 3 - index); // 计算二进制值
         }
       });
-      requestAnimationFrame(animateParticles);
-    }
-    animateParticles();
-
-    // 小球移动逻辑
-    const ball = document.getElementById('ball');
-    const positions = [
-      { x: 50, y: 200 },  // 0: 起点
-      { x: 150, y: 150 }, // 1: 1 (正确)
-      { x: 150, y: 250 }, // 2: 0
-      { x: 250, y: 100 }, // 3: 0 (正确)
-      { x: 250, y: 300 }, // 4: 1
-      { x: 350, y: 150 }, // 5: 1 (正确)
-      { x: 350, y: 250 }, // 6: 0
-      { x: 450, y: 100 }, // 7: 0 (正确)
-      { x: 450, y: 300 }, // 8: 1
-      { x: 550, y: 150 }, // 9: 1 (正确)
-      { x: 550, y: 250 }  // 10: 0
-    ];
-    const correctPath = [1, 0, 1, 0, 1, 0]; // 101010 = 42
-    let currentPos = 0;
-    let binaryIndex = 0;
-
-    let ballX = positions[0].x;
-    let ballY = positions[0].y;
-    ball.style.left = `${ballX}px`;
-    ball.style.top = `${ballY}px`;
-
-    document.onkeydown = function(e) {
-      let targetPos = -1;
-      switch (e.key) {
-        case 'ArrowUp':
-          targetPos = positions.findIndex(p => p.x === ballX && p.y < ballY && Math.abs(p.y - ballY) <= 150);
-          break;
-        case 'ArrowDown':
-          targetPos = positions.findIndex(p => p.x === ballX && p.y > ballY && Math.abs(p.y - ballY) <= 150);
-          break;
-        case 'ArrowRight':
-          targetPos = positions.findIndex(p => p.y === ballY && p.x > ballX && Math.abs(p.x - ballX) <= 100);
-          break;
+      currentContainer.innerHTML = ''; // 清空当前容器
+      for (let i = 0; i < value; i++) {
+        const ball = document.createElement('span');
+        ball.className = 'ball';
+        currentContainer.appendChild(ball);
       }
+    }
 
-      if (targetPos !== -1 && isValidMove(targetPos)) {
-        if (checkBinary(currentPos, targetPos)) {
-          currentPos = targetPos;
-          binaryIndex++;
-          ballX = positions[currentPos].x;
-          ballY = positions[currentPos].y;
-          ball.style.left = `${ballX}px`;
-          ball.style.top = `${ballY}px`;
-          if (currentPos === 9) {
-            setTimeout(() => window.location.href = 'task9.html', 1000);
-          }
-        } else {
-          ballX = positions[Math.max(0, binaryIndex - 1)].x;
-          ballY = positions[Math.max(0, binaryIndex - 1)].y;
-          ball.style.left = `${ballX}px`;
-          ball.style.top = `${ballY}px`;
-        }
+    // 为每个开关添加事件监听
+    switches.forEach(switchInput => {
+      switchInput.addEventListener('change', () => {
+        updateLamps();
+        updateCurrentContainer();
+      });
+    });
+
+    // 检查按钮点击事件
+    checkBtn.addEventListener('click', () => {
+      const currentBalls = currentContainer.querySelectorAll('.ball').length;
+      if (currentBalls === targetValue) {
+        // 成功：按钮变绿并脉动，2秒后跳转
+        checkBtn.classList.add('success-btn');
+        setTimeout(() => {
+          window.location.href = 'task4.html';
+        }, 2000);
+      } else {
+        // 错误：按钮变红并抖动，0.5秒后恢复
+        checkBtn.classList.add('error-btn');
+        setTimeout(() => {
+          checkBtn.classList.remove('error-btn');
+        }, 500);
       }
-    };
-
-    function checkBinary(current, next) {
-      if (binaryIndex >= correctPath.length) return false;
-      const expected = correctPath[binaryIndex];
-      const chosen = positions[next].x === positions[current].x ? 
-        (positions[next].y < positions[current].y ? 0 : 1) : 
-        (positions[next].y === 150 ? 1 : 0);
-      return chosen === expected;
-    }
-
-    function isValidMove(next) {
-      const current = positions[currentPos];
-      const target = positions[next];
-      return (current.x === target.x && Math.abs(current.y - target.y) === 100) ||
-             (current.y === target.y && Math.abs(current.x - target.x) === 100);
-    }
+    });
   </script>
 </body>
+
 </html>

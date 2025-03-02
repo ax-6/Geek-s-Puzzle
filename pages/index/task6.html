@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geek's Puzzle</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e1e2f, #2a2a4a);
+        }
+
+        .game-container {
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .array {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .item {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #666;
+            color: #fff;
+            font-size: 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .item.selected {
+            background: #007bff;
+            transform: scale(1.1);
+        }
+
+        .item.swap {
+            animation: swap 0.5s ease;
+        }
+
+        @keyframes swap {
+            0% {
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(70px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        .success .item {
+            background: #00ff00;
+            animation: blink 0.3s infinite alternate;
+        }
+
+        @keyframes blink {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.2);
+            }
+        }
+    </style>
+    <!-- script -->
+</head>
+
+<body>
+    <div class="game-container">
+        <div class="array" id="array"></div>
+    </div>
+
+    <script>
+        const arrayContainer = document.getElementById('array');
+        let array = [5, 2, 4, 1, 3];
+        const targetArray = [1, 2, 3, 4, 5];
+        let selectedIndex = null;
+
+        // 渲染数组
+        function renderArray() {
+            arrayContainer.innerHTML = '';
+            array.forEach((value, index) => {
+                const item = document.createElement('div');
+                item.className = 'item';
+                item.textContent = value;
+                item.dataset.index = index;
+                if (selectedIndex === index) item.classList.add('selected');
+                item.addEventListener('click', () => handleClick(index));
+                arrayContainer.appendChild(item);
+            });
+        }
+
+        // 处理点击
+        function handleClick(index) {
+            if (selectedIndex === null) {
+                selectedIndex = index;
+                renderArray();
+            } else {
+                const diff = Math.abs(selectedIndex - index);
+                if (diff === 1) { // 仅允许相邻交换
+                    swap(selectedIndex, index);
+                    selectedIndex = null;
+                    renderArray();
+                    checkWin();
+                } else {
+                    selectedIndex = index; // 重新选择
+                    renderArray();
+                }
+            }
+        }
+
+        // 交换元素
+        function swap(i, j) {
+            const temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+            const items = arrayContainer.children;
+            items[i].classList.add('swap');
+            items[j].classList.add('swap');
+            playSound(300, 100);
+            setTimeout(() => {
+                items[i].classList.remove('swap');
+                items[j].classList.remove('swap');
+            }, 500);
+        }
+
+        // 检查胜利
+        function checkWin() {
+            if (array.join('') === targetArray.join('')) {
+                arrayContainer.classList.add('success');
+                playSound(440, 200);
+                setTimeout(() => {
+                    window.location.href = 'task7.html'; // 下一关
+                }, 2000);
+            }
+        }
+
+        // 播放音效
+        function playSound(frequency, duration) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.value = frequency;
+            oscillator.connect(audioContext.destination);
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), duration);
+        }
+
+        renderArray();
+    </script>
+</body>
+
+</html>

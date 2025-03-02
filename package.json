@@ -1,15 +1,39 @@
 {
   "name": "geek-s-puzzle",
-  "version": "1.0.0",
+  "version": "0.0.1-alpha",
   "description": "An interesting puzzle. Only geeks can unravel it.",
   "main": "main.js",
   "scripts": {
-    "start": "nodemon --exec electron ."
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "build": "electron-vite build",
+    "build:win": "npm run build && electron-builder --win --config",
+    "start": "nodemon --exec electron .",
+    "electron:generate-icons": "electron-icon-builder --input=./geek-s-puzzle.png --output=build --flatten"
   },
   "author": "Xie Zicong",
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "electron": "^34.2.0",
     "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "electron-icon-builder": "^2.0.1",
+    "electron-vite": "^3.0.0"
+  },
+  "build": {
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "./build/icons/icon.ico",
+      "uninstallerIcon": "./build/icons/icon.ico",
+      "installerHeaderIcon": "./build/icons/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true,
+      "shortcutName": "geek-s-puzzle-ico"
+    }
   }
 }

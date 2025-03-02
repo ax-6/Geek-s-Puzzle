@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -55,14 +56,37 @@
         }
 
         /* 不同按钮的渐变颜色 */
-        .btn-a { background: linear-gradient(45deg, #ff6b6b, #feca57); }
-        .btn-a:hover { background: linear-gradient(45deg, #feca57, #ff6b6b); }
-        .btn-r { background: linear-gradient(45deg, #4ecdc4, #45b7d1); }
-        .btn-r:hover { background: linear-gradient(45deg, #45b7d1, #4ecdc4); }
-        .btn-t { background: linear-gradient(45deg, #96ceb4, #ffeead); }
-        .btn-t:hover { background: linear-gradient(45deg, #ffeead, #96ceb4); }
-        .btn-s { background: linear-gradient(45deg, #d4a5a5, #9b59b6); }
-        .btn-s:hover { background: linear-gradient(45deg, #9b59b6, #d4a5a5); }
+        .btn-a {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+        }
+
+        .btn-a:hover {
+            background: linear-gradient(45deg, #feca57, #ff6b6b);
+        }
+
+        .btn-r {
+            background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+        }
+
+        .btn-r:hover {
+            background: linear-gradient(45deg, #45b7d1, #4ecdc4);
+        }
+
+        .btn-t {
+            background: linear-gradient(45deg, #96ceb4, #ffeead);
+        }
+
+        .btn-t:hover {
+            background: linear-gradient(45deg, #ffeead, #96ceb4);
+        }
+
+        .btn-s {
+            background: linear-gradient(45deg, #d4a5a5, #9b59b6);
+        }
+
+        .btn-s:hover {
+            background: linear-gradient(45deg, #9b59b6, #d4a5a5);
+        }
 
         /* 输入框和叉号容器 */
         .input-container {
@@ -103,7 +127,56 @@
             transform: rotate(90deg);
         }
     </style>
+    <script>
+        // 加密时间戳的Cookie操作
+        class ProgressTracker {
+            constructor() {
+                this.cookieName = 'X1B1enpsZV9Qcm9ncmVzcw=='; // Base64加密的cookie名
+                this.init();
+            }
+
+            init() {
+                if (!this.getCookie()) {
+                    this.setProgressCookie();
+                }
+            }
+
+            setProgressCookie() {
+                const timestamp = this.encryptTime(Date.now());
+                const days = 7; // Cookie有效期
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+
+                document.cookie =
+                    atob(this.cookieName) + '=' + timestamp + ';'
+                    + 'expires=' + date.toUTCString() + ';'
+                    + 'path=/;'
+                    + 'SameSite=Strict;'
+                    + (location.protocol === 'https:' ? 'Secure' : '');
+            }
+
+            encryptTime(timestamp) {
+                // 简单混淆：时间戳倒序 + Base64编码
+                return btoa(String(timestamp).split('').reverse().join(''));
+            }
+
+            getCookie() {
+                const decodedName = atob(this.cookieName);
+                return document.cookie.split('; ')
+                    .find(row => row.startsWith(decodedName + '='))
+                    ?.split('=')[1];
+            }
+        }
+
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            new ProgressTracker();
+
+        });
+    </script>
+    <!-- script -->
 </head>
+
 <body>
     <!-- 二维码图片 -->
     <img src="START.png" alt="QR Code" class="qr-code">
@@ -148,4 +221,5 @@
         }
     </script>
 </body>
+
 </html>

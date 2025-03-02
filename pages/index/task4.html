@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geek's Puzzle</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e1e2f, #2a2a4a);
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 50px);
+            grid-gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            background: #333;
+            position: relative;
+        }
+
+        .robot {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #00f;
+            transition: transform 0.3s ease;
+        }
+
+        .gem {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #0f0;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+
+        .obstacle {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #f00;
+        }
+
+        .switch {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #ff0;
+            border-radius: 50%;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+        }
+
+        .move-btn {
+            background-image: url('move-icon.svg');
+        }
+
+        .left-btn {
+            background-image: url('left-icon.svg');
+        }
+
+        .right-btn {
+            background-image: url('right-icon.svg');
+        }
+
+        .switch-btn {
+            background-image: url('switch-icon.svg');
+        }
+    </style>
+    <!-- script -->
+</head>
+
+<body>
+    <div class="game-container">
+        <div class="grid" id="grid"></div>
+        <div class="buttons">
+            <button class="btn move-btn" id="move-btn"></button>
+            <button class="btn left-btn" id="left-btn"></button>
+            <button class="btn right-btn" id="right-btn"></button>
+            <button class="btn switch-btn" id="switch-btn"></button>
+        </div>
+    </div>
+
+    <script>
+        const grid = document.getElementById('grid');
+        const cells = [];
+        const robot = { x: 0, y: 0, direction: 'right' };
+        let gems = [{ x: 2, y: 2 }, { x: 4, y: 4 }];
+        const obstacles = [{ x: 1, y: 1 }, { x: 3, y: 2 }];
+        const switches = [{ x: 3, y: 4, activated: false }];
+        const hiddenGem = { x: 4, y: 0 };
+
+        // 初始化网格
+        for (let y = 0; y < 5; y++) {
+            for (let x = 0; x < 5; x++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.x = x;
+                cell.dataset.y = y;
+                grid.appendChild(cell);
+                cells.push(cell);
+            }
+        }
+
+        // 渲染场景
+        function render() {
+            cells.forEach(cell => cell.innerHTML = '');
+            // 机器人
+            const robotCell = cells.find(c => c.dataset.x == robot.x && c.dataset.y == robot.y);
+            const robotDiv = document.createElement('div');
+            robotDiv.className = 'robot';
+            robotDiv.style.transform = `rotate(${getRotation()}deg)`;
+            robotCell.appendChild(robotDiv);
+            // 宝石
+            gems.forEach(gem => {
+                const gemCell = cells.find(c => c.dataset.x == gem.x && c.dataset.y == gem.y);
+                const gemDiv = document.createElement('div');
+                gemDiv.className = 'gem';
+                gemCell.appendChild(gemDiv);
+            });
+            // 障碍物
+            obstacles.forEach(obs => {
+                const obsCell = cells.find(c => c.dataset.x == obs.x && c.dataset.y == obs.y);
+                const obsDiv = document.createElement('div');
+                obsDiv.className = 'obstacle';
+                obsCell.appendChild(obsDiv);
+            });
+            // 开关
+            switches.forEach(s => {
+                const switchCell = cells.find(c => c.dataset.x == s.x && c.dataset.y == s.y);
+                const switchDiv = document.createElement('div');
+                switchDiv.className = 'switch';
+                switchCell.appendChild(switchDiv);
+            });
+        }
+
+        function getRotation() {
+            switch (robot.direction) {
+                case 'right': return 0;
+                case 'down': return 90;
+                case 'left': return 180;
+                case 'up': return 270;
+            }
+        }
+
+        // 前进
+        function move() {
+            let dx = 0, dy = 0;
+            switch (robot.direction) {
+                case 'right': dx = 1; break;
+                case 'left': dx = -1; break;
+                case 'down': dy = 1; break;
+                case 'up': dy = -1; break;
+            }
+            const newX = robot.x + dx;
+            const newY = robot.y + dy;
+            if (newX >= 0 && newX < 5 && newY >= 0 && newY < 5) {
+                const targetCell = cells.find(c => c.dataset.x == newX && c.dataset.y == newY);
+                if (!targetCell.querySelector('.obstacle')) {
+                    robot.x = newX;
+                    robot.y = newY;
+                    const gemIndex = gems.findIndex(g => g.x == newX && g.y == newY);
+                    if (gemIndex !== -1) gems.splice(gemIndex, 1);
+                } else {
+                    shakeRobot();
+                    setTimeout(reset, 500);
+                    return;
+                }
+            }
+            render();
+            checkWin();
+        }
+
+        // 左转
+        function turnLeft() {
+            switch (robot.direction) {
+                case 'right': robot.direction = 'up'; break;
+                case 'up': robot.direction = 'left'; break;
+                case 'left': robot.direction = 'down'; break;
+                case 'down': robot.direction = 'right'; break;
+            }
+            render();
+        }
+
+        // 右转
+        function turnRight() {
+            switch (robot.direction) {
+                case 'right': robot.direction = 'down'; break;
+                case 'down': robot.direction = 'left'; break;
+                case 'left': robot.direction = 'up'; break;
+                case 'up': robot.direction = 'right'; break;
+            }
+            render();
+        }
+
+        // 检查开关
+        function checkSwitch() {
+            let dx = 0, dy = 0;
+            switch (robot.direction) {
+                case 'right': dx = 1; break;
+                case 'left': dx = -1; break;
+                case 'down': dy = 1; break;
+                case 'up': dy = -1; break;
+            }
+            const checkX = robot.x + dx;
+            const checkY = robot.y + dy;
+            const switchIndex = switches.findIndex(s => s.x == checkX && s.y == checkY && !s.activated);
+            if (switchIndex !== -1) {
+                switches[switchIndex].activated = true;
+                gems.push(hiddenGem);
+            }
+            render();
+        }
+
+        // 检查胜利
+        function checkWin() {
+            if (gems.length === 0 && switches.every(s => s.activated)) {
+                setTimeout(() => {
+                    window.location.href = 'task5.html';
+                }, 2000);
+            }
+        }
+
+        // 机器人抖动
+        function shakeRobot() {
+            const robotDiv = document.querySelector('.robot');
+            robotDiv.style.animation = 'shake 0.5s';
+            setTimeout(() => robotDiv.style.animation = '', 500);
+        }
+
+        // 重置
+        function reset() {
+            robot.x = 0;
+            robot.y = 0;
+            robot.direction = 'right';
+            gems = [{ x: 2, y: 2 }, { x: 4, y: 4 }];
+            switches.forEach(s => s.activated = false);
+            render();
+        }
+
+        // 按钮事件
+        document.getElementById('move-btn').addEventListener('click', move);
+        document.getElementById('left-btn').addEventListener('click', turnLeft);
+        document.getElementById('right-btn').addEventListener('click', turnRight);
+        document.getElementById('switch-btn').addEventListener('click', checkSwitch);
+
+        // 添加抖动动画
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            @keyframes shake {
+                0% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                50% { transform: translateX(5px); }
+                75% { transform: translateX(-5px); }
+                100% { transform: translateX(0); }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+        render();
+    </script>
+</body>
+
+</html>

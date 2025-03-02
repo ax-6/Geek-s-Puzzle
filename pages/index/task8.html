@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Geek's Puzzle</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
+        }
+
+        .floating-text {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.1);
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            pointer-events: none;
+            animation: float 20s infinite linear;
+            filter: blur(0.5px);
+        }
+
+        .input-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+
+        .cyber-input {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid;
+            border-image: linear-gradient(45deg, #00f3ff, #ff00ff) 1;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+        }
+
+        .cyber-input:focus {
+            outline: none;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+            border-image: linear-gradient(45deg, #ff00ff, #00f3ff) 1;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+            }
+        }
+
+        @keyframes hueShift {
+            0% {
+                filter: hue-rotate(0deg);
+            }
+
+            100% {
+                filter: hue-rotate(360deg);
+            }
+        }
+    </style>
+    <!-- script -->
+</head>
+
+<body>
+    <div class="input-container">
+        <input type="text" class="cyber-input" placeholder="" id="codeInput">
+    </div>
+
+    <script>
+        // 生成浮动背景文本
+        const baseText = 'R2Vla1B1enpsZUtleQ==';
+        const container = document.body;
+
+        // 创建多个浮动文本实例
+        for (let i = 0; i < 50; i++) {
+            const text = document.createElement('div');
+            text.className = 'floating-text';
+            text.textContent = baseText;
+
+            // 动态生成个性化动画
+            const startX = Math.random() * 100;
+            const endX = Math.random() * 100;
+            const fontSize = 15 + Math.random() * 15;
+            const duration = 15 + Math.random() * 15;
+            const delay = Math.random() * 20;
+
+            text.style.cssText = `
+                font-size: ${fontSize}px;
+                animation: float ${duration}s ${delay}s infinite linear;
+                filter: hue-rotate(${Math.random() * 360}deg)
+                        blur(${Math.random() * 2}px);
+                left: ${startX}%;
+            `;
+
+            // 动态创建动画关键帧
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes float-${i} {
+                    0% {
+                        transform: 
+                            translateY(110vh) 
+                            translateX(calc(-50% + ${startX}%))
+                            rotate(${Math.random() * 360}deg);
+                    }
+                    100% {
+                        transform: 
+                            translateY(-100%) 
+                            translateX(calc(-50% + ${endX}%))
+                            rotate(${360 + Math.random() * 360}deg);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            text.style.animationName = `float-${i}`;
+            container.appendChild(text);
+        }
+
+        // 动态颜色变换
+        let hue = 0;
+        function updateColors() {
+            document.body.style.background = `
+                linear-gradient(
+                    ${(hue / 10) % 360}deg,
+                    hsl(${hue % 360}, 80%, 30%),
+                    hsl(${(hue + 180) % 360}, 80%, 30%)
+                )
+            `;
+            hue += 0.5;
+            requestAnimationFrame(updateColors);
+        }
+        updateColors();
+
+        // 输入验证
+        document.getElementById('codeInput').addEventListener('input', function (e) {
+            if (e.target.value === atob(baseText)) {
+                // 过关效果
+                const particles = 50;
+                for (let i = 0; i < particles; i++) {
+                    const particle = document.createElement('div');
+                    particle.style.cssText = `
+                        position: fixed;
+                        left: ${e.target.offsetLeft + 20}px;
+                        top: ${e.target.offsetTop + 10}px;
+                        width: 5px;
+                        height: 5px;
+                        background: hsl(${Math.random() * 360}, 100%, 50%);
+                        border-radius: 50%;
+                        pointer-events: none;
+                        animation: explode 1s forwards;
+                    `;
+
+                    const angle = (Math.PI * 2 * i) / particles;
+                    const distance = Math.random() * 100;
+                    particle.style.setProperty('--x', Math.cos(angle) * distance + 'px');
+                    particle.style.setProperty('--y', Math.sin(angle) * distance + 'px');
+
+                    document.body.appendChild(particle);
+                }
+
+                // 跳转逻辑
+                setTimeout(() => {
+                    window.location.href = 'task9.html';
+                }, 1000);
+            }
+        });
+
+        // 添加粒子动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes explode {
+                to {
+                    transform: translate(var(--x), var(--y));
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+
+</html>

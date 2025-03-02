@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Geek</title>
@@ -13,6 +14,7 @@
       align-items: center;
       height: 100vh;
     }
+
     canvas {
       position: absolute;
       top: 0;
@@ -20,6 +22,7 @@
       z-index: 0;
       opacity: 0.5;
     }
+
     .lock-container {
       position: relative;
       z-index: 1;
@@ -34,11 +37,13 @@
       align-items: center;
       justify-content: center;
     }
+
     .display {
       display: flex;
       gap: 10px;
       margin-bottom: 20px;
     }
+
     .digit {
       width: 60px;
       height: 60px;
@@ -51,11 +56,13 @@
       text-shadow: 0 0 10px #00ffcc;
       font-family: monospace;
     }
+
     .digit.active {
       background: #ff00ff;
       color: #ffffff;
       box-shadow: 0 0 15px #ff00ff;
     }
+
     .hint {
       position: absolute;
       font-size: 36px;
@@ -64,12 +71,22 @@
       opacity: 0;
       animation: flicker 3s infinite;
     }
+
     @keyframes flicker {
-      0%, 100% { opacity: 0; }
-      50% { opacity: 1; }
+
+      0%,
+      100% {
+        opacity: 0;
+      }
+
+      50% {
+        opacity: 1;
+      }
     }
   </style>
+  <!-- script -->
 </head>
+
 <body>
   <canvas id="bg"></canvas>
   <div class="lock-container">
@@ -121,7 +138,7 @@
     let tempInput = ''; // 临时存储当前输入的数字
     const correctSequence = [71, 101, 101, 107]; // ASCII for "Geek"
 
-    document.onkeydown = function(e) {
+    document.onkeydown = function (e) {
       if (e.key >= '0' && e.key <= '9') {
         tempInput += e.key;
         updateDisplay();
@@ -178,4 +195,5 @@
     }
   </script>
 </body>
+
 </html>

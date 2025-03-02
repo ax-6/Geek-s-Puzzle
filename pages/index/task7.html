@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geek's Puzzle</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e1e2f, #2a2a4a);
+        }
+
+        .game-container {
+            position: relative;
+            width: 500px;
+            height: 400px;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .node {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #666;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            transition: background 0.3s ease;
+        }
+
+        .node.source {
+            background: #007bff;
+        }
+
+        .node.target {
+            border: 3px solid #0f0;
+        }
+
+        .packet {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #00f;
+            border-radius: 50%;
+            transition: all 0.5s ease;
+        }
+
+        .edge {
+            position: absolute;
+            background: #fff;
+            height: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .edge.selected {
+            background: #007bff;
+        }
+
+        .edge.invalid {
+            animation: shake 0.3s ease;
+            background: #f00;
+        }
+
+        .delay-label {
+            position: absolute;
+            color: #fff;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .delay-display {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        .success .node.target {
+            background: #00ff00;
+            animation: blink 0.3s infinite alternate;
+        }
+
+        @keyframes blink {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.2);
+            }
+        }
+    </style>
+    <!-- script -->
+</head>
+
+<body>
+    <div class="game-container" id="game">
+        <div class="delay-display" id="delay-display">0 ms</div>
+    </div>
+
+    <script>
+        const gameContainer = document.getElementById('game');
+        const delayDisplay = document.getElementById('delay-display');
+        const nodes = [
+            { id: 'S', x: 50, y: 200 },   // 源节点
+            { id: 'R0', x: 150, y: 100 },
+            { id: 'R1', x: 150, y: 300 },
+            { id: 'R2', x: 250, y: 200 },
+            { id: 'R3', x: 350, y: 100 },
+            { id: 'R4', x: 350, y: 300 },
+            { id: 'D', x: 450, y: 200 }   // 目标节点
+        ];
+        const edges = [
+            { from: 0, to: 1, delay: 2 }, // S→R0
+            { from: 0, to: 2, delay: 5 }, // S→R1
+            { from: 1, to: 3, delay: 3 }, // R0→R2
+            { from: 1, to: 4, delay: 4 }, // R0→R3
+            { from: 2, to: 3, delay: 6 }, // R1→R2
+            { from: 2, to: 5, delay: 3 }, // R1→R4
+            { from: 3, to: 4, delay: 2 }, // R2→R3
+            { from: 3, to: 6, delay: 5 }, // R2→D
+            { from: 4, to: 6, delay: 4 }, // R3→D
+            { from: 5, to: 6, delay: 6 }  // R4→D
+        ];
+        let currentNode = 0;
+        let selectedEdges = [];
+        let totalDelay = 0;
+        const targetDelay = 10;
+
+        // 渲染网络
+        function renderNetwork() {
+            gameContainer.innerHTML = '<div class="delay-display" id="delay-display"></div>';
+            const delayDisplay = document.getElementById('delay-display');
+            delayDisplay.textContent = `${totalDelay} ms`;
+
+            // 绘制边
+            edges.forEach((edge, index) => {
+                const div = document.createElement('div');
+                div.className = 'edge';
+                const dx = nodes[edge.to].x - nodes[edge.from].x;
+                const dy = nodes[edge.to].y - nodes[edge.from].y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                div.style.width = `${length}px`;
+                div.style.left = `${nodes[edge.from].x + 25}px`;
+                div.style.top = `${nodes[edge.from].y + 25}px`;
+                div.style.transform = `rotate(${angle}deg)`;
+                div.style.transformOrigin = '0 0';
+                if (selectedEdges.includes(index)) div.classList.add('selected');
+                if (edge.from === currentNode) {
+                    div.addEventListener('click', () => movePacket(index));
+                }
+                gameContainer.appendChild(div);
+
+                const delay = document.createElement('div');
+                delay.className = 'delay-label';
+                delay.textContent = `${edge.delay}`;
+                delay.style.left = `${(nodes[edge.from].x + nodes[edge.to].x) / 2}px`;
+                delay.style.top = `${(nodes[edge.from].y + nodes[edge.to].y) / 2}px`;
+                gameContainer.appendChild(delay);
+            });
+
+            // 绘制节点
+            nodes.forEach((node, i) => {
+                const div = document.createElement('div');
+                div.className = 'node';
+                div.textContent = node.id;
+                div.style.left = `${node.x}px`;
+                div.style.top = `${node.y}px`;
+                if (i === 0) div.classList.add('source');
+                if (i === nodes.length - 1) div.classList.add('target');
+                gameContainer.appendChild(div);
+            });
+
+            // 绘制数据包
+            const packet = document.createElement('div');
+            packet.className = 'packet';
+            packet.style.left = `${nodes[currentNode].x + 15}px`;
+            packet.style.top = `${nodes[currentNode].y + 15}px`;
+            gameContainer.appendChild(packet);
+        }
+
+        // 移动数据包
+        function movePacket(edgeIndex) {
+            const edge = edges[edgeIndex];
+            if (edge.from !== currentNode) return;
+
+            totalDelay += edge.delay;
+            selectedEdges.push(edgeIndex);
+            currentNode = edge.to;
+            renderNetwork();
+            playSound(300, 100);
+            checkWin();
+        }
+
+        // 检查胜利
+        function checkWin() {
+            if (currentNode === nodes.length - 1) {
+                if (totalDelay === targetDelay) {
+                    gameContainer.classList.add('success');
+                    playSound(440, 200);
+                    setTimeout(() => {
+                        window.location.href = 'task8.html'; // 下一关
+                    }, 2000);
+                } else {
+                    selectedEdges.forEach(index => {
+                        const edgeDiv = gameContainer.children[index * 2];
+                        edgeDiv.classList.add('invalid');
+                    });
+                    setTimeout(() => {
+                        currentNode = 0;
+                        selectedEdges = [];
+                        totalDelay = 0;
+                        renderNetwork();
+                    }, 300);
+                    playSound(200, 100);
+                }
+            }
+        }
+
+        // 播放音效
+        function playSound(frequency, duration) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.value = frequency;
+            oscillator.connect(audioContext.destination);
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), duration);
+        }
+
+        renderNetwork();
+    </script>
+</body>
+
+</html>
