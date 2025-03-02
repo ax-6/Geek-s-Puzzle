@@ -4,35 +4,26 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+    // icon: '/build/icons/icon'
   },
   rebuildConfig: {},
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {
-        // The ICO file to use as the icon for the generated Setup.exe
-        setupIcon: '/build/icons/icon.ico'
-      }
+      config: {},
     },
     {
-      // Path to a single image that will act as icon for the application
+      name: '@electron-forge/maker-zip',
+      platforms: ['darwin'],
+    },
+    {
       name: '@electron-forge/maker-deb',
-      config: {
-        options: {
-          icon: '/build/icons/1024x1024.png'
-        }
-      }
+      config: {},
     },
     {
-      // Path to the icon to use for the app in the DMG window
-      name: '@electron-forge/maker-dmg',
+      name: '@electron-forge/maker-rpm',
+      config: {},
     },
-    {
-      name: '@electron-forge/maker-wix',
-      config: {
-        icon: '/build/icons/icon.ico'
-      }
-    }
   ],
   plugins: [
     {
@@ -51,8 +42,4 @@ module.exports = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
-  packagerConfig: {
-    icon: '/build/icons/icon' // no file extension required
-  },
-
 };

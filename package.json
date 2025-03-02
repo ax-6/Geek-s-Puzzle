@@ -28,6 +28,7 @@
     "nodemon": "^3.1.9"
   },
   "dependencies": {
+    "asar": "^3.2.0",
     "electron-icon-builder": "^2.0.1",
     "electron-squirrel-startup": "^1.0.1",
     "electron-vite": "^3.0.0"
