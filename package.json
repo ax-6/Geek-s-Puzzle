@@ -8,17 +8,28 @@
     "dist": "electron-builder",
     "build": "electron-vite build",
     "build:win": "npm run build && electron-builder --win --config",
-    "start": "nodemon --exec electron .",
-    "electron:generate-icons": "electron-icon-builder --input=./geek-s-puzzle.png --output=build --flatten"
+    "start": "electron-forge start",
+    "electron:generate-icons": "electron-icon-builder --input=./geek-s-puzzle.png --output=build --flatten",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "author": "Xie Zicong",
   "license": "AGPL-3.0-only",
   "devDependencies": {
+    "@electron-forge/cli": "^7.7.0",
+    "@electron-forge/maker-deb": "^7.7.0",
+    "@electron-forge/maker-rpm": "^7.7.0",
+    "@electron-forge/maker-squirrel": "^7.7.0",
+    "@electron-forge/maker-zip": "^7.7.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.7.0",
+    "@electron-forge/plugin-fuses": "^7.7.0",
+    "@electron/fuses": "^1.8.0",
     "electron": "^34.2.0",
     "nodemon": "^3.1.9"
   },
   "dependencies": {
     "electron-icon-builder": "^2.0.1",
+    "electron-squirrel-startup": "^1.0.1",
     "electron-vite": "^3.0.0"
   },
   "build": {
