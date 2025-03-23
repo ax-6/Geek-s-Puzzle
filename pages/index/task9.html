@@ -1,124 +1,202 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh">
 <head>
-    <title>The End</title>
-    <script>
-        class TimeCalculator {
-            constructor() {
-                this.cookieName = 'X1B1enpsZV9Qcm9ncmVzcw==';
-                this.displayElement = this.createDisplay();
-                this.init();
-            }
-
-            init() {
-                const storedTime = this.getDecryptedTime();
-                if (storedTime) {
-                    this.startTime = storedTime;
-                    this.updateDisplay();
-                    //this.startLiveUpdate();
-                } else {
-                    this.displayElement.textContent = 'Progress data not found';
-                }
-            }
-
-            createDisplay() {
-                const div = document.createElement('div');
-                div.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    font-family: 'Courier New', monospace;
-                    font-size: 2em;
-                    color: #0ff;
-                    text-shadow: 0 0 10px rgba(0,255,255,0.5);
-                    background: rgba(0,0,0,0.7);
-                    padding: 20px;
-                    border-radius: 10px;
-                    border: 2px solid #0ff;
-                `;
-                document.body.appendChild(div);
-                return div;
-            }
-
-            getDecryptedTime() {
-                const cookieValue = document.cookie
-                    .split('; ')
-                    .find(row => row.startsWith(atob(this.cookieName) + '='))
-                    ?.split('=')[1];
-                
-                if (!cookieValue) return null;
-                
-                try {
-                    return parseInt(
-                        atob(cookieValue)
-                            .split('')
-                            .reverse()
-                            .join('')
-                    );
-                } catch {
-                    return null;
-                }
-            }
-
-            calculateDuration() {
-                const now = Date.now();
-                const diff = Math.max(now - this.startTime, 0);
-                
-                return {
-                    days: Math.floor(diff / 86400000),
-                    hours: Math.floor((diff % 86400000) / 3600000),
-                    minutes: Math.floor((diff % 3600000) / 60000),
-                    seconds: Math.floor((diff % 60000) / 1000),
-                    milliseconds: diff % 1000
-                };
-            }
-
-            formatTime(unit, value) {
-                const colors = {
-                    days: '#FF6B6B',
-                    hours: '#4ECDC4',
-                    minutes: '#45B7D1',
-                    seconds: '#96CEB4',
-                    milliseconds: '#FFEEAD'
-                };
-                
-                return `<span style="color:${colors[unit]}">${value}</span>${unit[0]}`;
-            }
-
-            updateDisplay() {
-                const duration = this.calculateDuration();
-                this.displayElement.innerHTML = `
-                    TIME SPENT:<br>
-                    ${this.formatTime('days', duration.days)} 
-                    ${this.formatTime('hours', duration.hours)} 
-                    ${this.formatTime('minutes', duration.minutes)} 
-                    ${this.formatTime('seconds', duration.seconds)} 
-                    <span style="color:#FFEEAD">${duration.milliseconds.toString().padStart(3, '0')}</span>ms
-                `;
-            }
-
-            /*startLiveUpdate() {
-                setInterval(() => this.updateDisplay(), 47); // 非整数间隔减少视觉残留
-            }*/
+    <meta charset="UTF-8">
+    <title>1999</title>
+    <style>
+        body {
+            user-select: none;
+            background: linear-gradient(45deg, #001219, #001f3f);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            new TimeCalculator();
-            
-            // 添加背景特效
-            document.body.style.background = `
-                radial-gradient(circle at 50% 50%, 
-                    #1a1e2c 0%, 
-                    #2d3252 50%, 
-                    #1a1e2c 100%)
-            `;
-        });
-    </script>
+        .time-machine {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            background: rgba(0, 32, 63, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .timeline {
+            position: absolute;
+            height: 10px;
+            background: linear-gradient(90deg,
+                #ff0000 20%,
+                #00ff00 20% 80%,
+                #ff0000 80%
+            );
+            top: 50%;
+            left: 50px;
+            right: 50px;
+            transform: translateY(-50%);
+            border-radius: 5px;
+        }
+
+        .year-wheel {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 3px solid rgba(0, 255, 255, 0.3);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: conic-gradient(
+                #00ff00 0% 49%,
+                #ff0000 49% 51%,
+                #00ff00 51% 100%
+            );
+            animation: rotate 20s linear infinite;
+        }
+
+        .year-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4em;
+            color: #00ff00;
+            text-shadow: 0 0 20px #00ff00;
+            font-family: 'Courier New', monospace;
+        }
+
+        .control-knob {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: #001f3f;
+            border-radius: 50%;
+            border: 2px solid #00ffff;
+            cursor: grab;
+            transition: transform 0.3s;
+        }
+
+        .control-knob:hover {
+            box-shadow: 0 0 20px #00ffff;
+        }
+
+        .century-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 10px;
+            background: linear-gradient(90deg, 
+                #00ff00 0% 49%,
+                transparent 49% 51%,
+                #00ff00 51% 100%
+            );
+        }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes alarm {
+            0% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(180deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .danger {
+            animation: alarm 1s infinite;
+        }
+    </style>
 </head>
 <body>
-    <h style="color:white">Thank you for trying out the beta version of Geek's Puzzle. Welcome to provide feedback through Github.</h><br/>
-    <h style="color:white">Github: https://github.com/ax-6/geek-s-puzzle</h><br/><br/>
+    <div class="time-machine">
+        <div class="timeline"></div>
+        <div class="year-wheel"></div>
+        <div class="year-display">1999</div>
+        <div class="control-knob" style="left: 30%; top: 20%"></div>
+        <div class="control-knob" style="right: 30%; top: 20%"></div>
+        <div class="century-indicator"></div>
+    </div>
 
-    <h style="color:white">More projects (welcome to experience): https://github.com/aq-org/AQ</h><br/>
+    <script>
+        const yearDisplay = document.querySelector('.year-display');
+        const knobs = document.querySelectorAll('.control-knob');
+        let century = 19;
+        let year = 99;
+        let isCorrect = false;
+
+        // 控制旋钮交互
+        knobs.forEach((knob, index) => {
+            let isDragging = false;
+            let startY = 0;
+
+            knob.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startY = e.clientY;
+                knob.style.cursor = 'grabbing';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const deltaY = startY - e.clientY;
+                const sensitivity = 0.5;
+                
+                if(index === 0) { // 世纪控制
+                    century = Math.min(30, Math.max(19, century + deltaY * sensitivity));
+                } else { // 年份控制
+                    year = Math.min(99, Math.max(0, year + deltaY * sensitivity));
+                }
+                
+                updateDisplay();
+                startY = e.clientY;
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                knob.style.cursor = 'grab';
+                checkSolution();
+            });
+        });
+
+        function updateDisplay() {
+            // 生成动态显示效果
+            yearDisplay.textContent = `${Math.floor(century)}${Math.floor(year).toString().padStart(2, '0')}`;
+            
+            // 颜色反馈
+            const hue = century === 20 ? 120 : 0;
+            yearDisplay.style.textShadow = `0 0 30px hsl(${hue}, 100%, 50%)`;
+            document.querySelector('.time-machine').style.boxShadow = 
+                `0 0 50px hsl(${hue}, 100%, ${isCorrect ? 80 : 30}%)`;
+        }
+
+        function checkSolution() {
+            // 验证正确条件：20世纪最后时刻（1999-12-31 23:59:59）
+            const isValid = Math.floor(century) === 19 && 
+                          Math.floor(year) === 99;
+            
+            if(isValid && !isCorrect) {
+                isCorrect = true;
+                yearDisplay.classList.remove('danger');
+                setTimeout(() => {
+                    window.location.href = 'task10.html';
+                }, 1000);
+            } else if(!isValid && isCorrect) {
+                isCorrect = false;
+                yearDisplay.classList.add('danger');
+            }
+        }
+
+        // 初始错误状态
+        century = 20;
+        year = 00;
+        updateDisplay();
+        yearDisplay.classList.add('danger');
+    </script>
 </body>
 </html>

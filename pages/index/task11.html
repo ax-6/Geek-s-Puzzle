@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Geek's Puzzle</title>
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #f7931a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            background-image: 
+                linear-gradient(transparent 95%, rgba(247,147,26,0.1)),
+                repeating-linear-gradient(45deg, 
+                    transparent 0px, 
+                    transparent 24px, 
+                    rgba(247,147,26,0.1) 24px, 
+                    rgba(247,147,26,0.1) 25px);
+        }
+
+        .container {
+            position: relative;
+            padding: 2rem;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #f7931a;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(247,147,26,0.2);
+        }
+
+        input[type="datetime-local"] {
+            background: #111;
+            color: #f7931a;
+            border: 1px solid #f7931a;
+            padding: 1rem;
+            font-size: 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        input[type="datetime-local"]:hover {
+            box-shadow: 0 0 15px rgba(247,147,26,0.4);
+        }
+
+        .blockchain-animation {
+            position: absolute;
+            width: 300%;
+            height: 20px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 15px,
+                #f7931a 15px,
+                #f7931a 30px
+            );
+            animation: moveBlocks 20s linear infinite;
+            opacity: 0.1;
+        }
+
+        @keyframes moveBlocks {
+            from { transform: translateX(-30px); }
+            to { transform: translateX(-130px); }
+        }
+
+        .hidden-code {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            opacity: 0.2;
+            font-size: 0.8rem;
+            cursor: help;
+            transition: opacity 0.3s;
+        }
+
+        .hidden-code:hover {
+            opacity: 0.8;
+        }
+
+        #bitcoinSymbol {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0;
+            opacity: 0;
+            transition: all 1s;
+        }
+
+        .unlocked {
+            font-size: 20rem !important;
+            opacity: 1 !important;
+            text-shadow: 0 0 50px rgba(247,147,26,0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="blockchain-animation"></div>
+    
+    <div class="container">
+        <input type="datetime-local" id="timeInput" step="1">
+    </div>
+
+    <div class="hidden-code">
+        48656c6c6f205361746f736869202f2047656e6573697320426c6f636b
+    </div>
+
+    <div id="bitcoinSymbol">₿</div>
+
+    <script>
+        const targetDate = new Date('2009-01-03T18:15:05'); // 创世区块时间
+        const genesisHash = '000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f';
+
+        document.getElementById('timeInput').addEventListener('change', (e) => {
+            const selectedDate = new Date(e.target.value);
+            const timeDiff = Math.abs(selectedDate - targetDate);
+            
+            // 严格时间验证（误差小于5秒）
+            if(timeDiff < 5000) {
+                document.getElementById('bitcoinSymbol').classList.add('unlocked');
+                setTimeout(() => {
+                    window.location.href = 'task12.html';
+                }, 1000);
+            } else {
+                // 错误反馈
+                e.target.style.borderColor = '#ff0000';
+                setTimeout(() => {
+                    e.target.style.borderColor = '#f7931a';
+                }, 500);
+            }
+        });
+
+        function hexToString(hex) {
+            return hex.match(/.{1,2}/g)
+                     .map(byte => String.fromCharCode(parseInt(byte, 16)))
+                     .join('');
+        }
+    </script>
+</body>
+</html>

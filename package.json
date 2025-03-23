@@ -8,7 +8,7 @@
     "dist": "electron-builder",
     "build": "electron-vite build",
     "build:win": "npm run build && electron-builder --win --config",
-    "start": "electron-forge start",
+    "start": "nodemon --exec electron .",
     "electron:generate-icons": "electron-icon-builder --input=./geek-s-puzzle.png --output=build --flatten",
     "package": "electron-forge package",
     "make": "electron-forge make"

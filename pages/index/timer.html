@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background: rgba(0,0,0,0.7);
+            border-radius: 10px;
+            color: #00ff00;
+            font-family: 'Courier New';
+            text-align: center;
+            padding: 20px;
+            -webkit-app-region: drag;
+        }
+        #timer {
+            font-size: 2.5em;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="timer">00:00:00</div>
+    <canvas id="fireworks"></canvas>
+    
+    <script>
+        const { ipcRenderer } = require('electron');
+        let startTime = Date.now();
+        let timerActive = true;
+
+        // 计时器逻辑
+        function updateTimer() {
+            if(!timerActive) return;
+            
+            const elapsed = Date.now() - startTime;
+            const hours = Math.floor(elapsed / 3600000).toString().padStart(2, '0');
+            const minutes = Math.floor((elapsed % 3600000) / 60000).toString().padStart(2, '0');
+            const seconds = Math.floor((elapsed % 60000) / 1000).toString().padStart(2, '0');
+            
+            document.getElementById('timer').textContent = 
+                `${hours}:${minutes}:${seconds}`;
+            
+            requestAnimationFrame(updateTimer);
+        }
+
+        // 礼花效果
+        class Firework {
+            constructor() {
+                this.canvas = document.getElementById('fireworks');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.resize();
+                
+                window.addEventListener('resize', this.resize.bind(this));
+            }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+
+            createParticles(x, y) {
+                for(let i = 0; i < 100; i++) {
+                    this.particles.push({
+                        x, y,
+                        vx: Math.random() * 10 - 5,
+                        vy: Math.random() * 10 - 7,
+                        life: 1
+                    });
+                }
+            }
+
+            update() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                this.particles.forEach((p, i) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.1;
+                    p.life -= 0.01;
+                    
+                    if(p.life <= 0) {
+                        this.particles.splice(i, 1);
+                    } else {
+                        this.ctx.fillStyle = `hsla(${Math.random()*360}, 100%, 50%, ${p.life})`;
+                        this.ctx.beginPath();
+                        this.ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
+                        this.ctx.fill();
+                    }
+                });
+                
+                if(this.particles.length > 0) {
+                    requestAnimationFrame(this.update.bind(this));
+                }
+            }
+        }
+
+        const firework = new Firework();
+
+        // IPC监听
+        ipcRenderer.on('stop-timer', () => {
+            timerActive = false;
+            ipcRenderer.send('timer-stopped');
+        });
+
+        ipcRenderer.on('trigger-fireworks', () => {
+            const rect = document.getElementById('timer').getBoundingClientRect();
+            firework.createParticles(
+                rect.left + rect.width/2,
+                rect.top + rect.height/2
+            );
+            firework.update();
+            
+        });
+
+        // 启动计时器
+        updateTimer();
+    </script>
+</body>
+</html>

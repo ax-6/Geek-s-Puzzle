@@ -3,306 +3,197 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Geek's Puzzle</title>
+  <title>"Geek"</title>
   <style>
-    /* 整体布局样式 */
     body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      user-select: none;
       margin: 0;
-      background-color: #f0f0f0;
-    }
-
-    /* 目标容器和当前容器样式 */
-    .target-container,
-    .current-container {
+      background: #0a0e17;
+      overflow: hidden;
       display: flex;
       justify-content: center;
-      margin: 20px;
-    }
-
-    /* 小球样式 */
-    .ball {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background-color: #4CAF50;
-      margin: 5px;
-    }
-
-    /* 开关区域样式 */
-    .switches {
-      display: flex;
-      justify-content: center;
-      margin: 20px;
-    }
-
-    .switch-group {
-      display: flex;
-      flex-direction: column;
       align-items: center;
-      margin: 0 10px;
+      height: 100vh;
     }
 
-    /* 灯泡样式 */
-    .lamp {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background-color: #ccc;
-      margin-bottom: 10px;
-      transition: background-color 0.3s;
-    }
-
-    /* 开关样式 */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
+    canvas {
       position: absolute;
-      cursor: pointer;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-      border-radius: 34px;
+      z-index: 0;
+      opacity: 0.5;
     }
 
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 26px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-
-    input:checked+.slider {
-      background-color: #2196F3;
-    }
-
-    input:checked+.slider:before {
-      transform: translateX(26px);
-    }
-
-    /* 权重指示样式 */
-    .weight {
+    .lock-container {
+      position: relative;
+      z-index: 1;
+      width: 400px;
+      height: 200px;
+      background: rgba(27, 38, 59, 0.3);
+      border: 2px solid #00ffcc;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #00ffcc;
       display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
-      margin-top: 10px;
     }
 
-    /* 检查按钮样式 */
-    #check-btn {
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      border: none;
+    .display {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .digit {
+      width: 60px;
+      height: 60px;
+      background: #1b263b;
       border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
+      text-align: center;
+      line-height: 60px;
+      font-size: 24px;
+      color: #00ffcc;
+      text-shadow: 0 0 10px #00ffcc;
+      font-family: monospace;
     }
 
-    /* 成功动画 */
-    @keyframes pulse {
-      0% {
-        transform: scale(1);
+    .digit.active {
+      background: #ff00ff;
+      color: #ffffff;
+      box-shadow: 0 0 15px #ff00ff;
+    }
+
+    .hint {
+      position: absolute;
+      font-size: 36px;
+      color: #ff00ff;
+      text-shadow: 0 0 10px #ff00ff;
+      opacity: 0;
+      animation: flicker 3s infinite;
+    }
+
+    @keyframes flicker {
+
+      0%,
+      100% {
+        opacity: 0;
       }
 
       50% {
-        transform: scale(1.1);
+        opacity: 1;
       }
-
-      100% {
-        transform: scale(1);
-      }
-    }
-
-    .success-btn {
-      background-color: #4CAF50;
-      animation: pulse 0.5s infinite;
-    }
-
-    /* 错误动画 */
-    @keyframes shake {
-      0% {
-        transform: translateX(0);
-      }
-
-      25% {
-        transform: translateX(-5px);
-      }
-
-      50% {
-        transform: translateX(5px);
-      }
-
-      75% {
-        transform: translateX(-5px);
-      }
-
-      100% {
-        transform: translateX(0);
-      }
-    }
-
-    .error-btn {
-      background-color: #f44336;
-      animation: shake 0.5s;
     }
   </style>
   <!-- script -->
 </head>
 
 <body>
-  <!-- 目标容器：显示5个小球 -->
-  <div class="target-container">
-    <span class="ball"></span>
-    <span class="ball"></span>
-    <span class="ball"></span>
-    <span class="ball"></span>
-    <span class="ball"></span>
-  </div>
-
-  <!-- 开关和灯泡区域 -->
-  <div class="switches">
-    <!-- 2^3位，权重8 -->
-    <div class="switch-group">
-      <div class="lamp"></div>
-      <label class="switch">
-        <input type="checkbox" class="switch-input">
-        <span class="slider"></span>
-      </label>
-      <div class="weight">
-        <span class="ball"></span>
-        <span class="ball"></span>
-        <span class="ball"></span>
-        <span class="ball"></span>
-        <span class="ball"></span>
-        <span class="ball"></span>
-        <span class="ball"></span>
-        <span class="ball"></span>
-      </div>
-    </div>
-    <!-- 2^2位，权重4 -->
-    <div class="switch-group">
-      <div class="lamp"></div>
-      <label class="switch">
-        <input type="checkbox" class="switch-input">
-        <span class="slider"></span>
-      </label>
-      <div class="weight">
-        <span class="ball"></span>
-        <span class="ball"></span>
-        <span class="ball"></span>
-        <span class="ball"></span>
-      </div>
-    </div>
-    <!-- 2^1位，权重2 -->
-    <div class="switch-group">
-      <div class="lamp"></div>
-      <label class="switch">
-        <input type="checkbox" class="switch-input">
-        <span class="slider"></span>
-      </label>
-      <div class="weight">
-        <span class="ball"></span>
-        <span class="ball"></span>
-      </div>
-    </div>
-    <!-- 2^0位，权重1 -->
-    <div class="switch-group">
-      <div class="lamp"></div>
-      <label class="switch">
-        <input type="checkbox" class="switch-input">
-        <span class="slider"></span>
-      </label>
-      <div class="weight">
-        <span class="ball"></span>
-      </div>
+  <canvas id="bg"></canvas>
+  <div class="lock-container">
+    <div class="display" id="display">
+      <div class="digit active"></div>
+      <div class="digit"></div>
+      <div class="digit"></div>
+      <div class="digit"></div>
     </div>
   </div>
-
-  <!-- 当前容器：显示开关状态对应的小球数量 -->
-  <div class="current-container"></div>
-
-  <!-- 检查按钮 -->
-  <button id="check-btn"></button>
 
   <script>
-    // 获取 DOM 元素
-    const switches = document.querySelectorAll('.switch-input');
-    const lamps = document.querySelectorAll('.lamp');
-    const currentContainer = document.querySelector('.current-container');
-    const checkBtn = document.getElementById('check-btn');
-    const targetValue = 5; // 目标值为5
+    // Canvas背景动画
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    // 更新灯泡状态
-    function updateLamps() {
-      switches.forEach((switchInput, index) => {
-        lamps[index].style.backgroundColor = switchInput.checked ? 'yellow' : '#ccc';
+    const particles = [];
+    for (let i = 0; i < 150; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 3 + 1,
+        speedX: Math.random() * 0.3 - 0.15,
+        speedY: Math.random() * 0.3 - 0.15,
+        char: String.fromCharCode(Math.floor(Math.random() * 94) + 33)
       });
     }
 
-    // 更新当前容器的小球数量
-    function updateCurrentContainer() {
-      let value = 0;
-      switches.forEach((switchInput, index) => {
-        if (switchInput.checked) {
-          value += Math.pow(2, 3 - index); // 计算二进制值
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#00ffcc';
+      ctx.font = '12px monospace';
+      particles.forEach(p => {
+        ctx.fillText(p.char, p.x, p.y);
+        p.x += p.speedX;
+        p.y += p.speedY;
+        if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // 解码逻辑
+    const digits = document.querySelectorAll('.digit');
+    let currentInput = []; // 存储完整的4个ASCII值
+    let tempInput = ''; // 临时存储当前输入的数字
+    const correctSequence = [71, 101, 101, 107]; // ASCII for "Geek"
+
+    document.onkeydown = function (e) {
+      if (e.key >= '0' && e.key <= '9') {
+        tempInput += e.key;
+        updateDisplay();
+      } else if (e.key === 'Enter' && tempInput !== '') {
+        const num = parseInt(tempInput);
+        if (num >= 0 && num <= 255) { // ASCII范围限制
+          currentInput.push(num);
+          tempInput = '';
+          updateDisplay();
+          if (currentInput.length === 4) {
+            checkSequence();
+          }
+        }
+      } else if (e.key === 'Backspace') {
+        if (tempInput.length > 0) {
+          tempInput = tempInput.slice(0, -1);
+        } else if (currentInput.length > 0) {
+          currentInput.pop();
+        }
+        updateDisplay();
+      }
+    };
+
+    function updateDisplay() {
+      digits.forEach((digit, i) => {
+        if (i < currentInput.length) {
+          digit.textContent = currentInput[i];
+          digit.classList.remove('active');
+        } else if (i === currentInput.length) {
+          digit.textContent = tempInput;
+          digit.classList.add('active');
+        } else {
+          digit.textContent = '';
+          digit.classList.remove('active');
         }
       });
-      currentContainer.innerHTML = ''; // 清空当前容器
-      for (let i = 0; i < value; i++) {
-        const ball = document.createElement('span');
-        ball.className = 'ball';
-        currentContainer.appendChild(ball);
-      }
     }
 
-    // 为每个开关添加事件监听
-    switches.forEach(switchInput => {
-      switchInput.addEventListener('change', () => {
-        updateLamps();
-        updateCurrentContainer();
-      });
-    });
-
-    // 检查按钮点击事件
-    checkBtn.addEventListener('click', () => {
-      const currentBalls = currentContainer.querySelectorAll('.ball').length;
-      if (currentBalls === targetValue) {
-        // 成功：按钮变绿并脉动，2秒后跳转
-        checkBtn.classList.add('success-btn');
-        setTimeout(() => {
-          window.location.href = 'task4.html';
-        }, 2000);
+    function checkSequence() {
+      const inputStr = currentInput.join(',');
+      const correctStr = correctSequence.join(',');
+      if (inputStr === correctStr) {
+        digits.forEach(digit => digit.style.background = '#00ff00');
+        setTimeout(() => window.location.href = 'task4.html', 1000);
       } else {
-        // 错误：按钮变红并抖动，0.5秒后恢复
-        checkBtn.classList.add('error-btn');
+        digits.forEach(digit => digit.style.background = '#ff0000');
         setTimeout(() => {
-          checkBtn.classList.remove('error-btn');
+          currentInput = [];
+          tempInput = '';
+          updateDisplay();
+          digits.forEach(digit => digit.style.background = '#1b263b');
         }, 500);
       }
-    });
+    }
   </script>
 </body>
 

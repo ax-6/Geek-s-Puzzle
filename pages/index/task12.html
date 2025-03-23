@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>The First</title>
+    <style>
+        body {
+            background: #001100;
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .crt-effect {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                transparent,
+                transparent 3px,
+                rgba(0,255,136,0.1) 3px,
+                rgba(0,255,136,0.1) 6px
+            );
+            pointer-events: none;
+            animation: scanline 8s linear infinite;
+        }
+
+        .terminal {
+            width: 640px;
+            border: 2px solid #00ff8866;
+            padding: 2rem;
+            background: #000000dd;
+            box-shadow: 0 0 40px #00ff8822;
+            position: relative;
+        }
+
+        .glitch-text {
+            text-shadow: 
+                2px 0 #ff0055,
+                -2px 0 #00ffff;
+            animation: glitch 0.3s infinite;
+        }
+
+        input {
+            background: transparent;
+            border: 1px solid #00ff8866;
+            color: inherit;
+            font-family: inherit;
+            padding: 0.5rem;
+            margin-top: 1rem;
+            width: 200px;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 10px #00ff8866;
+        }
+
+        @keyframes scanline {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(100%); }
+        }
+
+        @keyframes glitch {
+            0% { text-shadow: 2px 0 #ff0055; }
+            25% { text-shadow: -2px 0 #00ffff; }
+            50% { text-shadow: 3px 2px #ff0055; }
+            75% { text-shadow: -3px -2px #00ffff; }
+        }
+    </style>
+</head>
+<body>
+    <div class="crt-effect"></div>
+    
+    <div class="terminal">
+        <div class="glitch-text">> LO</div>
+        <div>10111101101101</div>
+        <input type="date" id="timeLock">
+    </div>
+
+    <script>
+        const targetTime = new Date('1969-10-29');
+        
+        document.getElementById('timeLock').addEventListener('change', (e) => {
+            const selected = new Date(e.target.value);
+            const isValid = selected.getTime() == targetTime.getTime();
+            
+            if(isValid) {
+                document.body.style.background = '#00ff88';
+                setTimeout(() => {
+                    window.location.href = 'finish.html';
+                }, 1000);
+            } else {
+                e.target.style.borderColor = '#ff0055';
+                setTimeout(() => e.target.style.borderColor = '#00ff8866', 500);
+            }
+        });
+
+
+    </script>
+</body>
+</html>

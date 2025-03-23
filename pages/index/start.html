@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            user-select: none;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(
+                45deg,
+                #0f0c29 25%,
+                #0c3a6d 50%,
+                #24243e 75%
+            );
+            background-size: 400% 400%;
+            animation: gradientFlow 12s ease infinite;
+            overflow: hidden;
+        }
+
+        .binary-stream {
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 255, 200, 0.1) 2px,
+                rgba(0, 255, 200, 0.1) 4px
+            );
+            animation: rotate 40s linear infinite;
+        }
+
+        .neon-circle {
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            border: 2px solid rgba(255, 0, 150, 0.5);
+            border-radius: 50%;
+            filter: blur(2px);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .hologram-grid {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 200, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 200, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: pan 20s linear infinite;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50% }
+            50% { background-position: 100% 50% }
+            100% { background-position: 0% 50% }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg) }
+            to { transform: rotate(360deg) }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5 }
+            50% { transform: scale(1.1); opacity: 0.8 }
+        }
+
+        @keyframes pan {
+            from { transform: translate(-50%, -50%) }
+            to { transform: translate(0%, 0%) }
+        }
+
+        .glowing-dots {
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(
+                circle at var(--x) var(--y),
+                rgba(255, 0, 150, 0.3),
+                transparent 80px
+            );
+            pointer-events: none;
+        }
+
+        .start-portal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle at 50% 50%,
+                rgba(0, 255, 200, 0.8),
+                rgba(255, 0, 150, 0.6)
+            );
+            cursor: pointer;
+            z-index: 2;
+            box-shadow: 
+                0 0 40px rgba(0, 255, 200, 0.3),
+                0 0 20px rgba(255, 0, 150, 0.3);
+            transition: all 0.3s ease;
+            animation: portalPulse 2s ease-in-out infinite;
+        }
+
+        .start-portal::before {
+            content: "▶";
+            position: absolute;
+            left: 52%;
+            top: 50%;
+            transform: translate(-40%, -50%);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 30px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .start-portal:hover {
+            transform: scale(1.2);
+            box-shadow: 
+                0 0 60px rgba(0, 255, 200, 0.5),
+                0 0 30px rgba(255, 0, 150, 0.5);
+        }
+
+        @keyframes portalPulse {
+            0%, 100% { transform: scale(1) }
+            50% { transform: scale(1.1) }
+        }
+
+        /* 调整核心元素尺寸 */
+        .cyber-core {
+            width: 400px;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="cyber-core">
+        <div class="binary-stream"></div>
+        <div class="neon-circle"></div>
+        <div class="hologram-grid"></div>
+        <div class="glowing-dots"></div>
+        <div class="start-portal"></div>
+    </div>
+
+    <script>
+        document.addEventListener('mousemove', (e) => {
+            const dots = document.querySelector('.glowing-dots');
+            const x = e.clientX / window.innerWidth * 100 + '%';
+            const y = e.clientY / window.innerHeight * 100 + '%';
+            dots.style.setProperty('--x', x);
+            dots.style.setProperty('--y', y);
+        });
+
+        document.querySelector('.start-portal').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<html>
+<head>
+    <title>The End</title>
+    <script>
+        class TimeCalculator {
+            constructor() {
+                this.cookieName = 'X1B1enpsZV9Qcm9ncmVzcw==';
+                this.displayElement = this.createDisplay();
+                this.init();
+            }
+
+            init() {
+                const storedTime = this.getDecryptedTime();
+                if (storedTime) {
+                    this.startTime = storedTime;
+                    this.updateDisplay();
+                    //this.startLiveUpdate();
+                } else {
+                    this.displayElement.textContent = 'Your Passing Time:';
+                }
+            }
+
+            createDisplay() {
+                const div = document.createElement('div');
+                div.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    font-family: 'Courier New', monospace;
+                    font-size: 2em;
+                    color: #0ff;
+                    text-shadow: 0 0 10px rgba(0,255,255,0.5);
+                    background: rgba(0,0,0,0.7);
+                    padding: 20px;
+                    border-radius: 10px;
+                    border: 2px solid #0ff;
+                `;
+                document.body.appendChild(div);
+                return div;
+            }
+
+            getDecryptedTime() {
+                const cookieValue = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith(atob(this.cookieName) + '='))
+                    ?.split('=')[1];
+                
+                if (!cookieValue) return null;
+                
+                try {
+                    return parseInt(
+                        atob(cookieValue)
+                            .split('')
+                            .reverse()
+                            .join('')
+                    );
+                } catch {
+                    return null;
+                }
+            }
+
+            calculateDuration() {
+                const now = Date.now();
+                const diff = Math.max(now - this.startTime, 0);
+                
+                return {
+                    days: Math.floor(diff / 86400000),
+                    hours: Math.floor((diff % 86400000) / 3600000),
+                    minutes: Math.floor((diff % 3600000) / 60000),
+                    seconds: Math.floor((diff % 60000) / 1000),
+                    milliseconds: diff % 1000
+                };
+            }
+
+            formatTime(unit, value) {
+                const colors = {
+                    days: '#FF6B6B',
+                    hours: '#4ECDC4',
+                    minutes: '#45B7D1',
+                    seconds: '#96CEB4',
+                    milliseconds: '#FFEEAD'
+                };
+                
+                return `<span style="color:${colors[unit]}">${value}</span>${unit[0]}`;
+            }
+
+            updateDisplay() {
+                const duration = this.calculateDuration();
+                this.displayElement.innerHTML = `
+                    TIME SPENT:<br>
+                    ${this.formatTime('days', duration.days)} 
+                    ${this.formatTime('hours', duration.hours)} 
+                    ${this.formatTime('minutes', duration.minutes)} 
+                    ${this.formatTime('seconds', duration.seconds)} 
+                    <span style="color:#FFEEAD">${duration.milliseconds.toString().padStart(3, '0')}</span>ms
+                `;
+            }
+
+            startLiveUpdate() {
+                setInterval(() => this.updateDisplay(), 47); // 非整数间隔减少视觉残留
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            new TimeCalculator();
+            
+            // 添加背景特效
+            document.body.style.background = `
+                radial-gradient(circle at 50% 50%, 
+                    #1a1e2c 0%, 
+                    #2d3252 50%, 
+                    #1a1e2c 100%)
+            `;
+        });
+    </script>
+</head>
+<body>
+    <h style="color:white">Thank you for trying out the demo of Geek's Puzzle. Welcome to provide feedback through Github or show your passing time.</h><br/>
+    <h style="color:white">Github: https://github.com/ax-6/geek-s-puzzle</h><br/><br/>
+
+    <h style="color:white">Other projects (welcome to try): https://github.com/aq-org/AQ</h><br/>
+</body>
+</html>

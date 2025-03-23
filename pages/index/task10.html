@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Geek's Puzzle</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .arena {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .choice-btn {
+            width: 120px;
+            height: 120px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(145deg, #00fff2, #0066ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+        }
+
+        .choice-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .result-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            color: white;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .computer-choice {
+            position: absolute;
+            right: 100px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #ff0066;
+            text-shadow: 0 0 30px rgba(255, 0, 102, 0.8);
+            opacity: 0;
+            transition: all 0.5s;
+        }
+
+        .player-choice {
+            position: absolute;
+            left: 100px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #ff0066;
+            text-shadow: 0 0 30px rgba(255, 0, 102, 0.8);
+            opacity: 0;
+            transition: all 0.5s;
+        }
+
+        .computer-choice.show {
+            opacity: 1;
+            animation: computer-reveal 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .vs-text {
+            position: absolute;
+            left: 50%;
+            top: 30%;
+            transform: translateX(-50%);
+            font-size: 3em;
+            color: #00ffff;
+            text-shadow: 0 0 20px #00ffff;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        @keyframes computer-reveal {
+            0% {
+                transform: translateY(-50%) scale(0) rotate(180deg);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(-50%) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        /* 新增关键修复样式 */
+        .computer-choice {
+            /* 确保元素可见性 */
+            display: flex !important;
+            z-index: 100;
+            opacity: 1;
+            /* 移除初始透明 */
+
+            /* 强化动画效果 */
+            animation: computer-reveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        /* 新增关键修复样式 */
+        .player-choice {
+            /* 确保元素可见性 */
+            display: flex !important;
+            z-index: 100;
+            opacity: 1;
+            /* 移除初始透明 */
+
+            /* 强化动画效果 */
+            animation: computer-reveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes computer-reveal {
+            0% {
+                transform: translateY(-50%) scale(0) rotate(180deg);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+                /* 强制中途可见 */
+            }
+
+            100% {
+                transform: translateY(-50%) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        /* 添加操作指引 */
+        .instructions {
+            position: absolute;
+            top: 20px;
+            color: #00ffff;
+            font-size: 1.2em;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .result-win {
+            color: #00ff00;
+        }
+
+        .result-lose {
+            color: #ff0000;
+        }
+
+        .result-draw {
+            color: #cccccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="arena">
+        <div class="computer-choice">✌️</div>
+        <div class="vs-text">VS</div>
+        <div class="player-choice">✌️</div>
+        <div class="result-display">?</div>
+    </div>
+
+    <div class="choices">
+        <button class="choice-btn" data-choice="rock">✊</button>
+        <button class="choice-btn" data-choice="paper">✋</button>
+        <button class="choice-btn" data-choice="scissors">✌️</button>
+    </div>
+
+    <script>
+        const choices = ['rock', 'paper', 'scissors'];
+        const resultDisplay = document.querySelector('.result-display');
+        const computerChoice = document.querySelector('.computer-choice');
+        const playerChoice = document.querySelector('.player-choice');
+        const vsText = document.querySelector('.vs-text');
+
+        // 强化电脑选择显示逻辑
+        function showComputerChoice(symbol) {
+            computerChoice.textContent = symbol;
+            computerChoice.style.display = 'flex';
+            computerChoice.style.animation = ''; // 重置动画
+            setTimeout(() => {
+                computerChoice.style.animation = 'computer-reveal 0.8s';
+            }, 10);
+        }
+
+        function showPlayerChoice(symbol) {
+            playerChoice.textContent = symbol;
+            playerChoice.style.display = 'flex';
+            playerChoice.style.animation = ''; // 重置动画
+            setTimeout(() => {
+                playerChoice.style.animation = 'computer-reveal 0.8s';
+            }, 10);
+        }
+
+        document.querySelectorAll('.choice-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                // 重置状态
+                computerChoice.classList.remove('show');
+                resultDisplay.style.opacity = 0;
+                vsText.style.opacity = 0;
+
+                // 玩家选择
+                const playerChoice = e.target.dataset.choice;
+
+                showPlayerChoice({
+                    rock: '✊',
+                    paper: '✋',
+                    scissors: '✌️'
+                }[playerChoice]);
+
+                // 立即显示电脑选择占位符
+                computerChoice.textContent = '...';
+                computerChoice.style.display = 'flex';
+
+                const computer = choices[Math.floor(Math.random() * 3)];
+                // 延迟显示实际选择
+                setTimeout(() => {
+                    showComputerChoice({
+                        rock: '✊',
+                        paper: '✋',
+                        scissors: '✌️'
+                    }[computer]);
+                }, 300);
+
+                // 判断结果
+                setTimeout(() => {
+                    const result = getResult(playerChoice, computer);
+                    showResult(result);
+                },300);
+            });
+        });
+
+        function getResult(player, computer) {
+            if (player === computer) return 'draw';
+            const winMap = {
+                rock: 'scissors',
+                paper: 'rock',
+                scissors: 'paper'
+            };
+            return winMap[player] === computer ? 'win' : 'lose';
+        }
+
+        function showResult(result) {
+            resultDisplay.textContent = {
+                win: 'Win!',
+                lose: 'Fail!',
+                draw: 'Draw!'
+            }[result];
+
+            resultDisplay.className = `result-display result-${result}`;
+            resultDisplay.style.opacity = 1;
+
+            // 背景效果
+            document.body.style.background = result === 'win'
+                ? 'linear-gradient(135deg, #1a2e1a, #162e16)'
+                : result === 'lose'
+                    ? 'linear-gradient(135deg, #2e1a1a, #2e1616)'
+                    : 'linear-gradient(135deg, #1a1a2e, #16213e)';
+
+            // 胜利跳转
+            if (result === 'win') {
+                setTimeout(() => {
+                    window.location.href = 'task11.html';
+                }, 300);
+            }
+        }
+    </script>
+</body>
+
+</html>
